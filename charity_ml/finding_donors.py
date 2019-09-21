@@ -110,7 +110,7 @@ print("Percentage of individuals making more than $50,000: {}%".format(greater_p
 # 
 # Run the code cell below to plot a histogram of these two features. Note the range of the values present and how they are distributed.
 
-# In[2]:
+# In[5]:
 
 
 # Split the data into features and target label
@@ -125,7 +125,7 @@ vs.distribution(data)
 # 
 # Run the code cell below to perform a transformation on the data and visualize the results. Again, note the range of values and how they are distributed. 
 
-# In[4]:
+# In[6]:
 
 
 # Log-transform the skewed features
@@ -142,7 +142,7 @@ vs.distribution(features_log_transformed, transformed = True)
 # 
 # Run the code cell below to normalize each numerical feature. We will use [`sklearn.preprocessing.MinMaxScaler`](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html) for this.
 
-# In[5]:
+# In[7]:
 
 
 # Import sklearn.preprocessing.StandardScaler
@@ -174,7 +174,7 @@ display(features_log_minmax_transform.head(n = 5))
 #  - Convert the target label `'income_raw'` to numerical entries.
 #    - Set records with "<=50K" to `0` and records with ">50K" to `1`.
 
-# In[6]:
+# In[8]:
 
 
 # One-hot encode the 'features_log_minmax_transform' data using pandas.get_dummies()
@@ -197,11 +197,11 @@ print (encoded)
 # 
 # Run the code cell below to perform this split.
 
-# In[7]:
+# In[9]:
 
 
 # Import train_test_split
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 
 # Split the 'features' and 'income' data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(features_final, 
@@ -488,12 +488,65 @@ vs.evaluate(results, accuracy, fscore)
 # 
 # **Note:** Depending on the algorithm chosen and the parameter list, the following implementation may take some time to run!
 
-# In[13]:
+# In[8]:
 
 
 # Import 'GridSearchCV', 'make_scorer', and any other necessary libraries
-from sklearn.grid_search import GridSearchCV
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, fbeta_score
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import fbeta_score, accuracy_score
+
+
+# Initialize the classifier
+clf = GradientBoostingClassifier(random_state = 42)
+
+# Create the parameters list you wish to tune, using a dictionary if needed.
+# HINT: parameters = {'parameter_1': [value1, value2], 'parameter_2': [value1, value2]}
+parameters = {'learning_rate': [0.1, 1],
+              'n_estimators': [10, 100],
+              'subsample': [1, 0.8, 0.6],
+              'min_samples_split': [2, 10, 20],
+#               'min_samples_leaf': [1, 10, 20],
+#               'max_depth': [3, 10, 20],
+#               'min_impurity_decrease': [0, 0.001, 0.01, 0.1],
+              'max_features': [None, 0.8, 'auto']}
+
+# Make an fbeta_score scoring object using make_scorer(), with beta = 0.5, more weight is on precision
+scorer = make_scorer(fbeta_score, beta = 0.5)
+
+# Perform grid search on the classifier using 'scorer' as the scoring method using GridSearchCV()
+grid_obj = GridSearchCV(clf, parameters, scoring = scorer)
+
+# Fit the grid search object to the training data and find the optimal parameters using fit()
+grid_fit = grid_obj.fit(X_train, y_train)
+
+# Get the estimator
+best_clf = grid_fit.best_estimator_
+
+# Make predictions using the unoptimized and model
+predictions = (clf.fit(X_train, y_train)).predict(X_test)
+best_predictions = best_clf.predict(X_test)
+
+# Report the before-and-afterscores
+print("Unoptimized model\n------")
+print("Accuracy score on testing data: {:.4f}".format(accuracy_score(y_test, predictions)))
+print("F-score on testing data: {:.4f}".format(fbeta_score(y_test, predictions, beta = 0.5)))
+print("\nOptimized Model\n------")
+print("Final accuracy score on the testing data: {:.4f}".format(accuracy_score(y_test, best_predictions)))
+print("Final F-score on the testing data: {:.4f}".format(fbeta_score(y_test, best_predictions, beta = 0.5)))
+
+
+# In[10]:
+
+
+# Import 'GridSearchCV', 'make_scorer', and any other necessary libraries
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer, fbeta_score
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import fbeta_score, accuracy_score
+
 
 # Initialize the classifier
 clf = GradientBoostingClassifier(random_state = 42)
@@ -512,11 +565,15 @@ parameters = {'learning_rate': [0.1, 1],
 # Make an fbeta_score scoring object using make_scorer()
 scorer = make_scorer(fbeta_score, beta = 0.5)
 
-# Perform grid search on the classifier using 'scorer' as the scoring method using GridSearchCV()
-grid_obj = GridSearchCV(clf, parameters, scoring = scorer)
+# Specify the cross validation method to use, in this case stratified shuffle split due to unbalanced target variable
+ssscv = StratifiedShuffleSplit(n_splits=5, test_size=0.2, random_state=42)
 
-# Fit the grid search object to the training data and find the optimal parameters using fit()
-grid_fit = grid_obj.fit(X_train, y_train)
+# Perform grid search on the classifier using 'scorer' as the scoring method using GridSearchCV()
+grid_obj = GridSearchCV(clf, parameters, cv = ssscv, scoring = scorer)
+
+# Fit the grid search object to the training data and find the optimal parameters using fit(), note, do not use X_train
+# and y_train in the train_test_split above
+grid_fit = grid_obj.fit(features_final, income)
 
 # Get the estimator
 best_clf = grid_fit.best_estimator_
@@ -708,7 +765,7 @@ print("F-score on testing data: {:.4f}".format(fbeta_score(y_test, reduced_predi
 # ## Before You Submit
 # You will also need run the following in order to convert the Jupyter notebook into HTML, so that your submission will include both files.
 
-# In[ ]:
+# In[12]:
 
 
 get_ipython().getoutput('jupyter nbconvert *.ipynb')
