@@ -4,8 +4,8 @@ from numpy import np
 from PIL import Image
 
 
-def load_transform_data(train_dir, valid_dir, test_dir):
-    data_dir = 'flowers'
+def load_transform_data(data_dir='flowers'):
+
     train_dir = data_dir + '/train'
     valid_dir = data_dir + '/valid'
     test_dir = data_dir + '/test'
@@ -28,7 +28,7 @@ def load_transform_data(train_dir, valid_dir, test_dir):
     test_data = datasets.ImageFolder(test_dir, transform=test_transforms)
     val_data = datasets.ImageFolder(valid_dir, transform=test_transforms)
 
-    # Using the image datasets and the trainforms, define the dataloaders
+    # Using the image datasets and the transforms, define the dataloaders
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=64, shuffle= True)
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=64)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=64)

@@ -9,6 +9,8 @@ from torch import optim
 import torch.nn.functional as f
 from torchvision import datasets, transforms, models
 
+from flower_image_classifier.utils import load_transform_data
+
 
 def build_nn(arch='vgg16', hidden_units=512):
     # Use pre-trained network
@@ -28,10 +30,10 @@ def build_nn(arch='vgg16', hidden_units=512):
         ('fc1', nn.Linear(25088, 4096)),
         ('relu', nn.ReLU()),
         ('dropout', nn.Dropout(0.15)),
-        ('fc2', nn.Linear(4096, 1000)),
+        ('fc2', nn.Linear(4096, hidden_units)),
         ('relu2', nn.ReLU()),
         ('dropout2', nn.Dropout(0.15)),
-        ('fc3', nn.Linear(1000, 102)),
+        ('fc3', nn.Linear(hidden_units, 102)),
         ('outpout', nn.LogSoftmax(dim=1))
     ]))
     model.classifier = classifier
@@ -104,3 +106,21 @@ def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20
                 model.train()
     return model
 
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('data_dir', action='store')
+    parser.add_argument('checkpoint', action='store')
+    parser.add_argument('--save_dir', action='store', dest='save_dir')
+    parser.add_argument('--gpu', action='store', dest='gpu')
+    parser.add_argument('--hidden_units', action='store', dest='hidden_units', type=int)
+    parser.add_argument('--epochs', action='store', dest='epochs', type=int)
+    parser.add_argument('--learning_rate', action='store', dest='learning_rate', type=int)
+
+    pa = parser.parse_args()
+
+    train_data, train_loader, test_data, test_loader, val_data, val_loader = load_transform_data(pa.data_dir)
+    model = build_nn(pa.arch, pa.hidden_units)
+    model = train(model, train_loader, val_loader, pa.gpu, pa.learning_rate, pa.epochs)
+    
