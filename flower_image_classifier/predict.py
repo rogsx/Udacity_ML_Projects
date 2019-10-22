@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import argparse
 from PIL import Image
 from flower_image_classifier.utils import process_image, load_checkpoint
 
@@ -33,11 +34,20 @@ def predict(image_dir, category_names, model, topk=5, gpu='gpu'):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
 
-    checkpoint = load_checkpoint(checkpoint, gpu)
+    parser.add_argument('input', action='store', dest='image_dir')
+    parser.add_argument('checkpoint', action='store')
+    parser.add_argument('--category_names', action='store', dest='category_names')
+    parser.add_argument('--gpu', action='store', dest='gpu')
+    parser.add_argument('--topk', action='store', dest='topk', type=int)
+
+    pa = parser.parse_args()
+
+    checkpoint = load_checkpoint(pa.checkpoint, pa.gpu)
     model = checkpoint['model']
     model.load_state_dict(checkpoint['state_dict'])
     model.class_to_idx = checkpoint['class_to_idx']
-    probabilities, top_named_classes = predict(input, category_names, model, topk, gpu)
+    probabilities, top_named_classes = predict(pa.image_dir, pa.category_names, model, pa.topk, pa.gpu)
 
     print(probabilities, top_named_classes)
