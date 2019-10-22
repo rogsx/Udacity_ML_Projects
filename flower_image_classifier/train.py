@@ -102,3 +102,4 @@ def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20
                 running_loss = 0
                 model.train()
     return model
+

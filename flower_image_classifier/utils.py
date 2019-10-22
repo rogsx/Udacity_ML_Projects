@@ -1,5 +1,7 @@
 from torchvision import datasets, transforms, models
 import torch
+from numpy import np
+from PIL import Image
 
 
 def load_transform_data(train_dir, valid_dir, test_dir):
@@ -32,4 +34,86 @@ def load_transform_data(train_dir, valid_dir, test_dir):
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=64)
 
     return train_data, train_loader, test_data, test_loader, val_data, val_loader
+
+
+def save_checkpoint(input_size, output_size, model, epoch, val_loss, optimizer, print_every, val_loader, running_loss):
+    checkpoint = {'input_size': input_size,
+                  'output_size': output_size,
+                  'model': model,
+                  'mapping_to_ind': model.class_to_idx,
+                  'state_dict': model.state_dict(),
+                  'epochs': epoch,
+                  'val_loss': val_loss / len(val_loader),
+                  'train_loss': running_loss / print_every,
+                  'optimizer_state': optimizer.state_dict()}
+
+    torch.save(checkpoint, 'checkpoint.pth')
+
+
+def load_checkpoint(checkpoint, gpu=False):
+    checkpoint = torch.load(checkpoint, map_location=('cuda' if (gpu and torch.cuda.is_available()) else 'cpu'))
+    return checkpoint
+
+
+def process_image(image):
+    ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
+        returns an Numpy array
+    '''
+
+    # Resize image while keeping aspect ratio
+
+    width, height = image.size
+    aspect_ratio = float(width / height)
+    if aspect_ratio >= 1:
+        scaled_height = 256
+        scaled_width = int(scaled_height * aspect_ratio)
+    else:
+        scaled_width = 256
+        scaled_height = int(scaled_width / aspect_ratio)
+
+    image = image.resize((scaled_width, scaled_height))
+
+    # Crop the image for the center 224 X 224 portion
+    left = scaled_width / 2 - 112
+    upper = scaled_height / 2 - 112
+    right = scaled_width / 2 + 112
+    lower = scaled_height / 2 + 112
+
+    image_crop = image.crop((left, upper, right, lower))
+
+    # Color channel scaling
+    img_array = np.array(image_crop)
+    np_image = img_array / 255.
+
+    # Normalization
+    mean = np.array([0.485, 0.456, 0.406])
+    std_dev = np.array([0.229, 0.224, 0.225])
+    norm_img = (np_image - mean) / std_dev
+
+    # make color channel first dimension
+    processed_img = norm_img.transpose((2, 0, 1))
+
+    return processed_img
+
+
+def imshow(image, ax=None, title=None):
+    """Imshow for Tensor."""
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # PyTorch tensors assume the color channel is the first dimension
+    # but matplotlib assumes is the third dimension
+    image = image.transpose((1, 2, 0))
+
+    # Undo preprocessing
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    image = std * image + mean
+
+    # Image needs to be clipped between 0 and 1 or it looks like noise when displayed
+    image = np.clip(image, 0, 1)
+
+    ax.imshow(image)
+
+    return ax
 
