@@ -100,7 +100,7 @@ def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20
                 print(f"Epoch {epoch + 1}/{epochs}.. "
                       f"Train loss: {running_loss / print_every:.3f}.. "
                       f"Validation loss: {val_loss / len(val_loader):.3f}.. "
-                      f"Validation accuracy: {accuracy / len(val_loader):.3f}"
+                      f"Validation accuracy: {accuracy / len(val_loader) * 100:.3f}%"
                       f"")
                 running_loss = 0
                 model.train()
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     #     parser.add_argument('checkpoint', action='store')
     parser.add_argument('--save_dir', action='store', dest='save_dir')
     parser.add_argument('--arch', action='store', dest='arch', default='vgg16')
-    parser.add_argument('--gpu', action='store_true', dest='gpu', default=False)
+    parser.add_argument('--gpu', action='store_true', dest='gpu')
     parser.add_argument('--hidden_units', action='store', dest='hidden_units', type=int, default=512)
     parser.add_argument('--epochs', action='store', dest='epochs', type=int, default=20)
     parser.add_argument('--learning_rate', action='store', dest='learning_rate', type=int, default=0.001)
