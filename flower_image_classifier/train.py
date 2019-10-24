@@ -104,7 +104,7 @@ def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20
                       f"")
                 running_loss = 0
                 model.train()
-    return model, val_losses, running_loss, optimizer, print_every
+    return model, val_loss, running_loss, optimizer, print_every
 
 
 if __name__ == '__main__':
@@ -123,9 +123,9 @@ if __name__ == '__main__':
 
     train_data, train_loader, test_data, test_loader, val_data, val_loader = load_transform_data(pa.data_dir)
     model, device = build_nn(pa.arch, pa.hidden_units, pa.gpu)
-    model, val_losses, running_loss, optimizer, print_every = train(model, train_loader, val_loader, device,
+    model, val_loss, running_loss, optimizer, print_every = train(model, train_loader, val_loader, device,
                                                                     pa.learning_rate, pa.epochs)
 
     model.class_to_idx = train_data.class_to_idx
-    save_checkpoint(model, pa.epochs, val_losses, optimizer, print_every, val_loader, running_loss, pa.save_dir)
+    save_checkpoint(model, pa.epochs, val_loss, optimizer, print_every, val_loader, running_loss, pa.save_dir)
 
