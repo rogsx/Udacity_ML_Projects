@@ -9,7 +9,7 @@ from torch import optim
 import torch.nn.functional as f
 from torchvision import datasets, transforms, models
 
-from flower_image_classifier.utils import load_transform_data
+from flower_image_classifier.utils import load_transform_data, save_checkpoint
 
 
 def build_nn(arch='vgg16', hidden_units=512, gpu=False):
