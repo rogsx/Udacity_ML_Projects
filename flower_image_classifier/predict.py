@@ -5,7 +5,7 @@ from PIL import Image
 from flower_image_classifier.utils import process_image, load_checkpoint
 
 
-def predict(image_dir, category_names, model, topk=5, gpu='gpu'):
+def predict(image_dir, category_names, model, topk=5, gpu=False):
     ''' Predict the class (or classes) of an image using a trained deep learning model.
     '''
     import json
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     parser.add_argument('input', action='store', dest='image_dir')
     parser.add_argument('checkpoint', action='store')
     parser.add_argument('--category_names', action='store', dest='category_names')
-    parser.add_argument('--gpu', action='store', dest='gpu')
+    parser.add_argument('--gpu', action='store_true', dest='gpu')
     parser.add_argument('--topk', action='store', dest='topk', type=int)
 
     pa = parser.parse_args()
