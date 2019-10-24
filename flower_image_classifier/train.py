@@ -12,7 +12,7 @@ from torchvision import datasets, transforms, models
 from flower_image_classifier.utils import load_transform_data
 
 
-def build_nn(arch='vgg16', hidden_units=512):
+def build_nn(arch='vgg16', hidden_units=512, gpu=False):
     # Use pre-trained network
     # TODO: Use try catch block, and expand the arch list
     if arch in ['vgg16']:
@@ -38,10 +38,10 @@ def build_nn(arch='vgg16', hidden_units=512):
     ]))
     model.classifier = classifier
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() and gpu else 'cpu')
     model.to(device)
 
-    return model
+    return model, device
 
 
 def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20):
@@ -104,23 +104,28 @@ def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20
                       f"")
                 running_loss = 0
                 model.train()
-    return model
+    return model, val_losses, running_loss, optimizer, print_every
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('data_dir', action='store')
-    parser.add_argument('checkpoint', action='store')
+    #     parser.add_argument('checkpoint', action='store')
     parser.add_argument('--save_dir', action='store', dest='save_dir')
-    parser.add_argument('--gpu', action='store', dest='gpu')
-    parser.add_argument('--hidden_units', action='store', dest='hidden_units', type=int)
-    parser.add_argument('--epochs', action='store', dest='epochs', type=int)
-    parser.add_argument('--learning_rate', action='store', dest='learning_rate', type=int)
+    parser.add_argument('--arch', action='store', dest='arch', default='vgg16')
+    parser.add_argument('--gpu', action='store_true', dest='gpu', default=False)
+    parser.add_argument('--hidden_units', action='store', dest='hidden_units', type=int, default=512)
+    parser.add_argument('--epochs', action='store', dest='epochs', type=int, default=20)
+    parser.add_argument('--learning_rate', action='store', dest='learning_rate', type=int, default=0.001)
 
     pa = parser.parse_args()
 
     train_data, train_loader, test_data, test_loader, val_data, val_loader = load_transform_data(pa.data_dir)
-    model = build_nn(pa.arch, pa.hidden_units)
-    model = train(model, train_loader, val_loader, pa.gpu, pa.learning_rate, pa.epochs)
-    
+    model, device = build_nn(pa.arch, pa.hidden_units, pa.gpu)
+    model, val_losses, running_loss, optimizer, print_every = train(model, train_loader, val_loader, device,
+                                                                    pa.learning_rate, pa.epochs)
+
+    model.class_to_idx = train_data.class_to_idx
+    save_checkpoint(model, epochs, val_loss, optimizer, print_every, val_loader, running_loss, checkpoint_path)
+

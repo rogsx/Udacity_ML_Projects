@@ -1,6 +1,6 @@
 from torchvision import datasets, transforms, models
 import torch
-from numpy import np
+import numpy as np
 from PIL import Image
 
 
@@ -36,10 +36,8 @@ def load_transform_data(data_dir='flowers'):
     return train_data, train_loader, test_data, test_loader, val_data, val_loader
 
 
-def save_checkpoint(input_size, output_size, model, epoch, val_loss, optimizer, print_every, val_loader, running_loss):
-    checkpoint = {'input_size': input_size,
-                  'output_size': output_size,
-                  'model': model,
+def save_checkpoint(model, epoch, val_loss, optimizer, print_every, val_loader, running_loss, checkpoint_path):
+    checkpoint = {'model': model,
                   'mapping_to_ind': model.class_to_idx,
                   'state_dict': model.state_dict(),
                   'epochs': epoch,
@@ -47,7 +45,7 @@ def save_checkpoint(input_size, output_size, model, epoch, val_loss, optimizer, 
                   'train_loss': running_loss / print_every,
                   'optimizer_state': optimizer.state_dict()}
 
-    torch.save(checkpoint, 'checkpoint.pth')
+    torch.save(checkpoint, checkpoint_path)
 
 
 def load_checkpoint(checkpoint, gpu=False):
