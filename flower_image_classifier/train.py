@@ -127,5 +127,5 @@ if __name__ == '__main__':
                                                                     pa.learning_rate, pa.epochs)
 
     model.class_to_idx = train_data.class_to_idx
-    save_checkpoint(model, epochs, val_loss, optimizer, print_every, val_loader, running_loss, checkpoint_path)
+    save_checkpoint(model, pa.epochs, val_losses, optimizer, print_every, val_loader, running_loss, pa.save_dir)
 
