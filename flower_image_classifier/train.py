@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 from collections import OrderedDict
 import time
 import argparse
@@ -6,8 +5,7 @@ import argparse
 import torch
 from torch import nn
 from torch import optim
-import torch.nn.functional as f
-from torchvision import datasets, transforms, models
+from torchvision import models
 
 from flower_image_classifier.utils import load_transform_data, save_checkpoint
 
@@ -44,7 +42,7 @@ def build_nn(arch='vgg16', hidden_units=512, gpu=False):
     return model, device
 
 
-def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20):
+def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=10):
     # Define loss function and optimizer
     criterion = nn.NLLLoss()
     optimizer = optim.Adam(model.classifier.parameters(), lr=learning_rate)
@@ -104,6 +102,7 @@ def train(model, train_loader, val_loader, device, learning_rate=0.01, epochs=20
                       f"")
                 running_loss = 0
                 model.train()
+
     return model, val_loss, running_loss, optimizer, print_every
 
 

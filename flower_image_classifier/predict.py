@@ -20,6 +20,7 @@ def predict(image_dir, category_names, model, topk=5, gpu=False):
     image = process_image(img)
     image_tensor = torch.tensor(image, dtype=torch.float)
     image_tensor = image_tensor.unsqueeze_(0)
+    model.eval()
     with torch.no_grad():
         logps = model(image_tensor)
     ps = torch.exp(logps)
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     pa = parser.parse_args()
 
     checkpoint = load_checkpoint(pa.checkpoint, pa.gpu)
-    #     print(checkpoint)
+
     model = checkpoint['model']
     model.load_state_dict(checkpoint['state_dict'])
     model.class_to_idx = checkpoint['mapping_to_ind']

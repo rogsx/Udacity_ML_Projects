@@ -1,7 +1,6 @@
-from torchvision import datasets, transforms, models
+from torchvision import datasets, transforms
 import torch
 import numpy as np
-from PIL import Image
 
 
 def load_transform_data(data_dir='flowers'):
@@ -29,7 +28,7 @@ def load_transform_data(data_dir='flowers'):
     val_data = datasets.ImageFolder(valid_dir, transform=test_transforms)
 
     # Using the image datasets and the transforms, define the dataloaders
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=64, shuffle= True)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=64, shuffle=True)
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=64)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=64)
 
