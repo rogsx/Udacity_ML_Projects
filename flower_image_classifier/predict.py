@@ -36,18 +36,25 @@ def predict(image_dir, category_names, model, topk=5, gpu=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('input', action='store', dest='image_dir')
+    parser.add_argument('input', action='store')
     parser.add_argument('checkpoint', action='store')
     parser.add_argument('--category_names', action='store', dest='category_names')
     parser.add_argument('--gpu', action='store_true', dest='gpu')
-    parser.add_argument('--topk', action='store', dest='topk', type=int)
+    parser.add_argument('--top_k', action='store', dest='top_k', type=int)
 
     pa = parser.parse_args()
 
     checkpoint = load_checkpoint(pa.checkpoint, pa.gpu)
+    #     print(checkpoint)
     model = checkpoint['model']
     model.load_state_dict(checkpoint['state_dict'])
-    model.class_to_idx = checkpoint['class_to_idx']
-    probabilities, top_named_classes = predict(pa.image_dir, pa.category_names, model, pa.topk, pa.gpu)
+    model.class_to_idx = checkpoint['mapping_to_ind']
+    probabilities, top_named_classes = predict(pa.input, pa.category_names, model, pa.top_k, pa.gpu)
 
     print(probabilities, top_named_classes)
+
+    max_p = max(probabilities)
+    max_index = np.argmax(probabilities, axis=0)
+    pred_class = top_named_classes[max_index]
+
+    print(f"The predicted class is {pred_class}, and it's probability is {max_p * 100:.3f}%.".format(pred_class, max_p))
