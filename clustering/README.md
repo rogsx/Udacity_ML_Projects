@@ -6,56 +6,34 @@
 
 This project requires **Python 3.x** and the following Python libraries installed:
 
-- [NumPy](http://www.numpy.org/)
-- [pytorch](http://pytorch.org/stable/) #TODO check link 
-- [torchvision](http://torchvision) # TODO check link
+- [NumPy](https://www.numpy.org/)
+- [Pandas](https://pandas.pydata.org/)
+- [Scikit-learn](https://scikit-learn.org/stable/index.html)
+- [Matplotlib](https://matplotlib.org/)
+- [Seaborn](https://seaborn.pydata.org/)
 
 You will also need to have software installed to run and execute an [iPython Notebook](http://ipython.org/notebook.html)
 
-We recommend you install [Anaconda](https://www.continuum.io/downloads), a pre-packaged Python distribution that contains all of the necessary libraries and software for this project. 
+I recommend you install [Anaconda](https://www.continuum.io/downloads), a pre-packaged Python distribution that contains all of the necessary libraries and software for this project. 
 
-### Code
-
-Template code is provided in the `finding_donors.ipynb` notebook file. You will also be required to use the included `visuals.py` Python file and the `census.csv` dataset file to complete your work. While some code has already been implemented to get you started, you will need to implement additional functionality when requested to successfully complete the project. Note that the code included in `visuals.py` is meant to be used out-of-the-box and not intended for students to manipulate. If you are interested in how the visualizations are created in the notebook, please feel free to explore this Python file.
 
 ### Run
 
-In a terminal or command window, navigate to the top-level project directory `Udacity_ML_Projects/` (that is the parent directory of this README) and run following commands in sequence to train and then predict.
-
-This will train the model in cpu or gpu (if gpu option is specified), save a checkpoint file, and then predict the flower for specified image. 
+In a terminal or command window, navigate to the current project directory `Udacity_ML_Projects/clustering` (that is the parent directory of this README) and run following commands.
 
 ```bash
-python flower_image_classifier/train.py 'flower_image_classifier/flowers/' --save_dir 'chk_pt_temp.pth' --epochs 1 --gpu
+ipython notebook identify_customer_segments.ipynb
 ```  
-Mandatory arguments are:
-* `data_dir`: directory containing training, validation and test sets
-
-Available options for the training command line are:
-* `save_dir`: checkpoint location for the model, weights and biases
-* `arch`: architecture of pre-trained neural net, available architectures include VGG16, #TODO add more archs
-* `hidden_units`: the number of input size for the last hidden layer 
-* `epochs`: number of training rounds
-* `learning_rate`: learning_rate of the optimizer
-* `gpu`: whether to use GPU for training, if available 
-
-and
-
+or
 ```bash
-python flower_image_classifier/predict.py 'flower_image_classifier/flowers/test/1/image_06743.jpg' 'chk_pt_temp.pth' --category_names 'flower_image_classifier/cat_to_name.json' --top_k 5
+jupyter notebook identify_customer_segments.ipynb
 ```
-Mandatory arguments are:
-* `input`: file path for the image that you want to predict
-* `checkpoint`: location of the checkpoint file saved by the training process
 
-Available options for the prediction command line are:
-* `category_names`: file path for the cat_to_name mapping file
-* `top_k`: the highest k output classes with highest probabilities
-* `gpu`: whether to use GPU for training, if available  
+This will open the iPython Notebook software and project file in your browser.
 
 ### Data
 
-The data contains colored flower images saved in jpg format. The images comes in different sizes
-with varying background. They are stored in different classes folders, each containing multiple samples
-of the same class. 
-
-The entire dataset was split into training, testing, and validation sets. 
+The data contains three sets of proprietary data from AZ Direct and Arvato Finance Solution. It concerns a company that performs
+mail-order sales in Germany. One dataset contains population data of demographic features, another with the same features
+and for their customers only, and final one is the feature summary set. Their main question of interest is to identify 
+facets of the population that are most likely to be purchasers of their products for a mailout campaign.
